@@ -34,10 +34,10 @@ You are required to write a server program and a client program using the system
 
   **Return**: the updated file content
 
-- ### One idempotent operation(Need to do)
+- ### One idempotent operation(Easy)(Need to do)
   Write append operation
 
-- ### One non-idempotent operation(Need to do)
+- ### One non-idempotent operation(Easy)(Need to do)
   Get file attribution (name, last modified time, file length)
 
 - ### Client-side caching(Done)
