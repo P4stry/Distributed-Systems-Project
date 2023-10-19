@@ -1,5 +1,5 @@
 from datetime import datetime
-import Server_Get_file_attr
+import Client_Send_and_Receive
 import Client
 '''
 Description: 
@@ -30,14 +30,10 @@ def check_cache(pathname):
         if curr_t - Client.CACHE[pathname]["T_c"] < Client.FRESHNESS_INTERVAL:
             return True
         else:
-            # marshalling
-            # send operation and parameters to server
-            # receive response from server
-            # unmarshalling
-            # get T_mclient from server
-
             # reponse format: {"T_mserver":t_mserver(int)}
-            t_mserver = Server_Get_file_attr.get_file_attr(pathname) # for test
+            request = {"operation":"get_file_attr", "pathname":pathname}
+            response = Client_Send_and_Receive.send_and_receive(request)
+            t_mserver = response["T_mserver"]
             if Client.CACHE[pathname]["T_mclient"] == t_mserver:
                 Client.CACHE[pathname]["T_c"] = curr_t
                 return True

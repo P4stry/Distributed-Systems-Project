@@ -1,5 +1,5 @@
 import Client_Caching
-import Server_Read_file
+import Client_Send_and_Receive
 from datetime import datetime
 
 def read_file(pathname,offset,length):
@@ -7,15 +7,13 @@ def read_file(pathname,offset,length):
     if isValid:
         content = Client_Caching.read_from_cache(pathname,offset,length)
     else:
-        # marshalling
-        # send operation and parameters to server
-        # receive response from server
-        # unmarshalling
-
         # if isSuccess is false, content is error message
         # if isSuccess is true, content is file content
         # reponse format: {"isSuccess":isSuccess(bool), "content":content(str)}
-        isSuccess, content = Server_Read_file.read_file(pathname,offset,length) # for test
+        request = {"operation":"read", "pathname":pathname, "offset":offset, "length":length}
+        response = Client_Send_and_Receive.send_and_receive(request)
+        isSuccess = response["isSuccess"]
+        content = response["content"]
         if isSuccess:
             curr_dt = datetime.now()
             curr_t = int(round(curr_dt.timestamp()))

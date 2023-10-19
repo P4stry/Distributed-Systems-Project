@@ -1,14 +1,10 @@
-import Client
-import Server_Monitor
+import Client_Send_and_Receive
 
 def register_monitor(pathname, t):
-    # marshalling
-    # send operation and parameters to server
-    # receive response from server
-    # unmarshalling
-
     # reponse format: {"isSuccess":isSuccess(bool)}
-    isSuccess = Server_Monitor.register(pathname,t) # for test
+    request = {"operation":"register_monitor", "pathname":pathname, "interval":t}
+    response = Client_Send_and_Receive.send_and_receive(request)
+    isSuccess = response["isSuccess"]
     return isSuccess
     # if isSuccess:
     #     print("Register monitor on "+ pathname + " successfully, expiration time is " + str(t))

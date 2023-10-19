@@ -3,6 +3,7 @@ import Server_Monitor
 import Server_Read_file
 import Server_Write_file
 import Data_process
+import socket
 from enum import Enum
 
 class Error(Enum):
@@ -22,17 +23,24 @@ HISTORY = {}
 
 # build connection with client
 # -------------need to implement----------------
+# something like this
+SERVER_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+SERVER_ADDRESS = ('localhost', 12345)
+SERVER_SOCKET.bind(SERVER_ADDRESS)
 
 # receive request from client
 # -------------need to implement----------------
 # also need to get the address of the client
-address = client_address # address of the client(string)
+request, client_address= SERVER_SOCKET.recvfrom(1024)
+address = client_address[0] + ":" + str(client_address[1]) # convert (client_ip(str),client_port(int)) to the address(string), format: "ip:port"
 
 # unmashalling
 request = Data_process.deserialize(request)
 operation = request["operation"]
+
 # request format: 
-# Read request: {"requestId":Id(int),"operation":"read", "pathname":pathname(str), "offset":offset(int), "length":length(int)}
+# Read request: {"requestId":Id(int),"operation":"read", "pathname":pathname(str), "offset":offset(int), "length":length(int)} at-most-once
+# Read request: {"operation":"read", "pathname":pathname(str), "offset":offset(int), "length":length(int)} at-least-once
 if operation == "read":
     flag = True
     if "requestId" in request: # at-most-once
@@ -55,7 +63,9 @@ if operation == "read":
         else:
             isSuccess = True
             content = return_value
-# Write request: {"requestId":Id(int),"operation":"write", "pathname":pathname(str), "offset":offset(int), "data":data(str)}
+
+# Write request: {"requestId":Id(int),"operation":"write", "pathname":pathname(str), "offset":offset(int), "data":data(str)} at-most-once
+# Write request: {"operation":"write", "pathname":pathname(str), "offset":offset(int), "data":data(str)} at-least-once
 elif operation == "write":
     flag = True
     if "requestId" in request: # at-most-once
@@ -79,7 +89,9 @@ elif operation == "write":
             isSuccess = True
             alive_clients = return_value[1]
             content = return_value[2]
-# Get file attribute request: {"requestId":Id(int),"operation":"get_file_attr", "pathname":pathname(str)}
+
+# Get file attribute request: {"requestId":Id(int),"operation":"get_file_attr", "pathname":pathname(str)} at-most-once
+# Get file attribute request: {"operation":"get_file_attr", "pathname":pathname(str)} at-least-once
 # Lack of error message
 elif operation == "get_file_attr":
     flag = True
@@ -93,7 +105,9 @@ elif operation == "get_file_attr":
         pathname = request["pathname"]
         return_value = Server_Get_file_attr.get_file_attr(pathname)
         t_mserver = return_value
-# Register Monitor request: {"requestId":Id(int),"operation":"register_monitor", "pathname":pathname(str), "interval":t(int)}
+
+# Register Monitor request: {"requestId":Id(int),"operation":"register_monitor", "pathname":pathname(str), "interval":t(int)} at-most-once
+# Register Monitor request: {"operation":"register_monitor", "pathname":pathname(str), "interval":t(int)} at-least-once
 # Lack of error message
 elif operation == "register_monitor":
     flag = True
@@ -106,8 +120,9 @@ elif operation == "register_monitor":
     if flag:
         pathname = request["pathname"]
         interval = request["interval"]
-        return_value = Server_Monitor.register_monitor(pathname, interval)
+        return_value = Server_Monitor.register(pathname, address, interval)
         isSuccess = return_value
+
 else:
     print("Invalid operation") # invalid operation should be checked by client
 
@@ -119,6 +134,7 @@ if operation == "read":
         response = {"isSuccess":isSuccess, "content":content}
     else:
         response = HISTORY[address][requestId]
+
 # Write response: {"isSuccess":isSuccess(bool), "content":content(str)}
 # Notify clients: {"notification":content(str)}
 elif operation == "write":
@@ -127,18 +143,23 @@ elif operation == "write":
         if alive_clients:
             notification = {"notification":content}
             # marshalling
-            for client in alive_clients:
+            notification = Data_process.serialize(notification)
+            for alive_client in alive_clients:
+                # conver "ip:port" to (ip(str),port(int))(tuple)
+                address_ip = alive_client.split(":")
+                alive_client_address = (address_ip[0],int(address_ip[1]))
                 # send notification to each client
-                # -------------need to implement----------------
-                pass
+                SERVER_SOCKET.sendto(response,alive_client_address)
     else:
         response = HISTORY[address][requestId]
+
 # Get file attribute response: {"T_mserver":t_mserver(int)}
 elif operation == "get_file_attr":
     if flag:
         response = {"T_mserver":t_mserver}
     else:
         response = HISTORY[address][requestId]
+
 # Register Monitor response: {"isSuccess":isSuccess(bool)}
 elif operation == "register_monitor":
     if flag:
@@ -153,5 +174,5 @@ response = Data_process.serialize(response)
 
 # send to client
 # -------------need to implement----------------
-
+SERVER_SOCKET.sendto(response,client_address)
 

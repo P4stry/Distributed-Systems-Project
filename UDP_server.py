@@ -14,6 +14,8 @@ response = "Hello Client"
 while True:
     # Receive data from the client
     data, client_address = server_socket.recvfrom(1024)
+    print(type(client_address))
+    print(client_address)
     print("Received {} bytes from {}:{}".format(len(data), *client_address))
     print("Message from {}:{} : {}".format(*client_address, data.decode("utf-8")))
 

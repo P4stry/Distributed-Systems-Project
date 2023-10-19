@@ -14,6 +14,8 @@ Return: the updated file content
 '''
 
 # return True if registration is successful
+# pathname: string
+# address: "ip:port"
 def register(pathname, address, t):
     curr_dt = datetime.now()
     timestamp = int(round(curr_dt.timestamp()))
