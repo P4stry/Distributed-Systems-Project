@@ -63,6 +63,6 @@ You are required to write a server program and a client program using the system
   Need to design experiments to compare the two invocation semantics. Show that at-least-once invocation semantics can lead to wrong results for non-idempotent operations, while at-most-once invocation semantics work correctly for all operations. 
 
 - ### Simulate the loss of request and reply messages(Need to do)
-  Choose a random number to decide if there are any failures
+  Choose a random number to decide if there are any failures, maybe can do with at-least-once and at-most-once semantics
 
 - ### Integrate and Test and Report(Need to do)
