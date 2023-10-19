@@ -65,4 +65,4 @@ You are required to write a server program and a client program using the system
 - ### Simulate the loss of request and reply messages(Need to do)
   Choose a random number to decide if there are any failures
 
-- ### Integrate and Test(Need to do)
+- ### Integrate and Test and Report(Need to do)
