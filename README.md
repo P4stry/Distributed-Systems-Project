@@ -34,9 +34,11 @@ You are required to write a server program and a client program using the system
 
   **Return**: the updated file content
 
-- ### One idempotent operation
+- ### One idempotent operation(Need to do)
+  Write append operation
 
-- ### One non-idempotent operation
+- ### One non-idempotent operation(Need to do)
+  Get file attribution (name, last modified time, file length)
 
 - ### Client-side caching(Done)
 
@@ -50,7 +52,7 @@ You are required to write a server program and a client program using the system
 
   Different operations may need different types of arguments and return different types of results. All messages transmitted between the server and the clients must be in the form of a sequence of bytes.  you must marshal the integer values, strings etc. before transmission and unmarshal them upon receipt.
 
-- ### Two different invocation semantics: at-least-once and at-most-once
+- ### Two different invocation semantics: at-least-once and at-most-once(Doing)
 
   Need to implement techniques like timeouts (client), filtering duplicate request messages (server), and maintaining histories (server).
 
@@ -60,4 +62,7 @@ You are required to write a server program and a client program using the system
 
   Need to design experiments to compare the two invocation semantics. Show that at-least-once invocation semantics can lead to wrong results for non-idempotent operations, while at-most-once invocation semantics work correctly for all operations. 
 
-- ### Simulate the loss of request and reply messages
+- ### Simulate the loss of request and reply messages(Need to do)
+  Choose a random number to decide if there are any failures
+
+- ### Integrate and Test(Need to do)
