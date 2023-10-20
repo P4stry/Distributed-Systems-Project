@@ -5,10 +5,9 @@ def register_monitor(pathname, t):
     request = {"operation":"register_monitor", "pathname":pathname, "interval":t}
     response = Client_Send_and_Receive.send_and_receive(request)
     isSuccess = response["isSuccess"]
-    return isSuccess
-    # if isSuccess:
-    #     print("Register monitor on "+ pathname + " successfully, expiration time is " + str(t))
-    #     return True
-    # else:
-    #     print("Register monitor fail")
-        
+    if isSuccess:
+        print("Register monitor on "+ pathname + " successfully, expiration time is " + str(t))
+        return True
+    else:
+        print("Register monitor fail")
+        return False

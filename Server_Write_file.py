@@ -14,7 +14,7 @@ Error message should be returned if the file does not exist on the server or if 
 '''
 
 # return an acknowledgement, clients to be notified, new content
-def write_file(pathname, offset, data):
+def write_insert(pathname, offset, data):
     try:
         f = open(pathname, 'r')
     except OSError:
@@ -26,6 +26,7 @@ def write_file(pathname, offset, data):
     current_content = f.read()
     f.close()
 
+    # write insert
     new_content = current_content[:offset] + data + current_content[offset:]
     f = open(pathname, 'w')
     f.write(new_content)
@@ -42,8 +43,33 @@ def write_file(pathname, offset, data):
     return True, clients, new_content
     # Server sends new content to the client requesting write operation anyway
 
+def write_append(pathname, data):
+    try:
+        f = open(pathname, 'a')
+    except OSError:
+        return Server.Error.FILE_OPEN_ERROR
+
+    # write append
+    f.write(data)
+    f.close()
+
+    # current content
+    f = open(pathname, 'r')
+    new_content = f.read()
+    f.close()
+
+    # update file attribute
+    curr_dt = datetime.now()
+    timestamp = int(round(curr_dt.timestamp()))
+    Server_Get_file_attr.update_file_attr(pathname, timestamp)
+
+    # update clients to be notified
+    clients = Server_Monitor.callback_clients(pathname)
+
+    return True, clients, new_content
+
 # Test
-# print(write_file('test.txt', 1, 'b'))
+# print(write_insert('test.txt', 1, 'b'))
 # return_value = (True, ['192.168.0.1'], 'abcd')
 # isSuccess = return_value[0]
 # clients = return_value[1]

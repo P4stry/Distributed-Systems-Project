@@ -1,5 +1,6 @@
 from datetime import datetime
 import Client_Send_and_Receive
+import Client_Get_file_attr
 import Client
 '''
 Description: 
@@ -21,7 +22,7 @@ T - T_c ≥ t, issue getattr call to server to obtain T_mserver(update T_c)
     T_mclient = T_mserver, the cache entry is valid (the data have not been modified at the server) and T_c is updated to current time
     T_mclient < T_mserver, the cache entry is invalidated, and a new request is sent to server for updated data, T_c is also updated
 '''
-# {pathname:{T_c:int, T_mclient:int, content:string}}
+# CACHE = {pathname:{T_c:int, T_mclient:int, content:string}}
 
 def check_cache(pathname):
     curr_dt = datetime.now()
@@ -30,10 +31,9 @@ def check_cache(pathname):
         if curr_t - Client.CACHE[pathname]["T_c"] < Client.FRESHNESS_INTERVAL:
             return True
         else:
-            # reponse format: {"T_mserver":t_mserver(int)}
-            request = {"operation":"get_file_attr", "pathname":pathname}
-            response = Client_Send_and_Receive.send_and_receive(request)
-            t_mserver = response["T_mserver"]
+            # return format: (t_mserver(int), length(int)) (tuple)
+            return_value = Client_Get_file_attr.get_file_attr(pathname)
+            t_mserver = return_value[0]
             if Client.CACHE[pathname]["T_mclient"] == t_mserver:
                 Client.CACHE[pathname]["T_c"] = curr_t
                 return True

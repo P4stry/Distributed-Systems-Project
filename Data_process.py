@@ -247,17 +247,17 @@ def deserialize(data):
         return deserialized_data
 
 # test data
-test_tuple = ((1,2,({1:'K',9:(3,'7',{(1,2): 6})},(3,4,'H'),'1')), {1,10,11})
-# test_dict = {1:{2:(6,{'1':'2'}), (8,17):9, 10:11},'12':'13', 4:5, 7:{1,2,3}}
-test_dict = {"isSuccess":True, "content":"abcd"}
-test_set = {1,2,(1,2,'1'),'3'}
-test_list = [1,2,{1:2, 3:{4,5,(7,8,9)}}]
-test_data = [test_tuple, test_dict, test_set, test_list]
+# test_tuple = ((1,2,({1:'K',9:(3,'7',{(1,2): 6})},(3,4,'H'),'1')), {1,10,11})
+# # test_dict = {1:{2:(6,{'1':'2'}), (8,17):9, 10:11},'12':'13', 4:5, 7:{1,2,3}}
+# test_dict = {"isSuccess":True, "content":"abcd"}
+# test_set = {1,2,(1,2,'1'),'3'}
+# test_list = [1,2,{1:2, 3:{4,5,(7,8,9)}}]
+# test_data = [test_tuple, test_dict, test_set, test_list]
 
-# Serialize & Deserialize the data
-serialized_data = serialize(test_dict)
-print("Serialized Data:", serialized_data)
-print("Type of Serialized Data:", type(serialized_data))
-deserialized_data = deserialize(serialized_data)
-print("Deserialized Data:", deserialized_data)
-print("Type of Deserialized Data:", type(deserialized_data))
+# # Serialize & Deserialize the data
+# serialized_data = serialize(test_dict)
+# print("Serialized Data:", serialized_data)
+# print("Type of Serialized Data:", type(serialized_data))
+# deserialized_data = deserialize(serialized_data)
+# print("Deserialized Data:", deserialized_data)
+# print("Type of Deserialized Data:", type(deserialized_data))

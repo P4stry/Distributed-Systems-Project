@@ -10,6 +10,7 @@ Return: the given number of bytes of the file content starting from the designat
 Error message should be returned if the file does not exist on the server or if the offset exceeds the file length
 '''
 
+# return data or error message
 def read_file(pathname,offset,length):
     try:
         f = open(pathname,'r')

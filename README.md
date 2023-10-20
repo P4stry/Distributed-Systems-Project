@@ -34,10 +34,10 @@ You are required to write a server program and a client program using the system
 
   **Return**: the updated file content
 
-- ### One idempotent operation(Easy)(Need to do)
+- ### One idempotent operation(Easy)(Done)
   Write append operation
 
-- ### One non-idempotent operation(Easy)(Need to do)
+- ### One non-idempotent operation(Easy)(Done)
   Get file attribution (name, last modified time, file length)
 
 - ### Client-side caching(Done)
@@ -52,7 +52,7 @@ You are required to write a server program and a client program using the system
 
   Different operations may need different types of arguments and return different types of results. All messages transmitted between the server and the clients must be in the form of a sequence of bytes.  you must marshal the integer values, strings etc. before transmission and unmarshal them upon receipt.
 
-- ### Two different invocation semantics: at-least-once and at-most-once(Doing)
+- ### Two different invocation semantics: at-least-once and at-most-once(Done)
 
   Need to implement techniques like timeouts (client), filtering duplicate request messages (server), and maintaining histories (server).
 
@@ -62,7 +62,7 @@ You are required to write a server program and a client program using the system
 
   Need to design experiments to compare the two invocation semantics. Show that at-least-once invocation semantics can lead to wrong results for non-idempotent operations, while at-most-once invocation semantics work correctly for all operations. 
 
-- ### Simulate the loss of request and reply messages(Need to do)
-  Choose a random number to decide if there are any failures, maybe can do with at-least-once and at-most-once semantics
+- ### Simulate the loss of request and reply messages(Done)
+  Choose a random number to decide if there are any failures (on server side, decide whether to reply or not, on client side, set timeout to send request repeatly), maybe can do with at-least-once and at-most-once semantics
 
 - ### Integrate and Test and Report(Need to do)
