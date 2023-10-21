@@ -2,6 +2,7 @@ import Server_Get_file_attr
 import Server_Monitor
 import Server_Read_file
 import Server_Write_file
+import Server_Get_file_list
 import Data_process
 import socket
 from enum import Enum
@@ -88,10 +89,23 @@ while True:
     request = Data_process.deserialize(request)
     operation = request["operation"]
 
-    # request format: 
+    # request format:
+    # List files request: {"requestId":Id(int),"operation":"list_files"} at-most-once
+    # List files request: {"operation":"list_files"} at-least-once
+    if operation == "list_files":
+        flag = True
+        if "requestId" in request:
+            if address in HISTORY:
+                if request["requestId"] in HISTORY[address]:
+                    # send the recoreded reply to client
+                    requestId = request["requestId"]
+                    flag = False
+        if flag:
+            return_value = Server_Get_file_list.get_file_list()
+
     # Read request: {"requestId":Id(int),"operation":"read", "pathname":pathname(str), "offset":offset(int), "length":length(int)} at-most-once
     # Read request: {"operation":"read", "pathname":pathname(str), "offset":offset(int), "length":length(int)} at-least-once
-    if operation == "read":
+    elif operation == "read":
         flag = True
         if "requestId" in request: # at-most-once
             if address in HISTORY:
@@ -100,7 +114,7 @@ while True:
                     requestId = request["requestId"]
                     flag = False
         if flag:
-            pathname = request["pathname"]
+            pathname = 'Shared file/' + request["pathname"]
             offset = request["offset"]
             length = request["length"]
             return_value = Server_Read_file.read_file(pathname,offset,length)
@@ -125,7 +139,7 @@ while True:
                     requestId = request["requestId"]
                     flag = False
         if flag:
-            pathname = request["pathname"]
+            pathname = 'Shared file/' + request["pathname"]
             offset = request["offset"]
             data = request["data"]
             return_value = Server_Write_file.write_insert(pathname, offset, data)
@@ -152,7 +166,7 @@ while True:
                     requestId = request["requestId"]
                     flag = False
         if flag:
-            pathname = request["pathname"]
+            pathname = 'Shared file/' + request["pathname"]
             data = request["data"]
             return_value = Server_Write_file.write_append(pathname, data)
             if return_value == Error.FILE_OPEN_ERROR:
@@ -176,7 +190,7 @@ while True:
                     requestId = request["requestId"]
                     flag = False
         if flag:
-            pathname = request["pathname"]
+            pathname = 'Shared file/' + request["pathname"]
             return_value = Server_Get_file_attr.get_file_attr(pathname)
             t_mserver = return_value[0]
             length = return_value[1]
@@ -193,7 +207,7 @@ while True:
                     requestId = request["requestId"]
                     flag = False
         if flag:
-            pathname = request["pathname"]
+            pathname = 'Shared file/' + request["pathname"]
             interval = request["interval"]
             return_value = Server_Monitor.register(pathname, address, interval)
             isSuccess = return_value
@@ -207,8 +221,19 @@ while True:
 
     # Send response to client
     # reponse format:
+    # List files response: {"file_list":file_list(list)}
+    if operation == "list_files":
+        if flag:
+            response = {"file_list":return_value}
+            # record the reply, if at-most-once
+            if "requestId" in request:
+                requestId = request["requestId"]
+                HISTORY[address] = {requestId:response}
+        else:
+            response = HISTORY[address][requestId]
+
     # Read response: {"isSuccess":isSuccess(bool), "content":content(str)}
-    if operation == "read":
+    elif operation == "read":
         if flag:
             response = {"isSuccess":isSuccess, "content":content}
             # record the reply, if at-most-once
@@ -230,7 +255,7 @@ while True:
 
             # notify other clients
             if alive_clients:
-                notification = {"notification":content}
+                notification = {"file name": request["pathname"], "file updated":content}
                 # marshalling
                 notification = Data_process.serialize(notification)
                 for alive_client in alive_clients:
