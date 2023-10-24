@@ -1,5 +1,6 @@
+import Server_GLOBAL
 import os
-import Server
+
 '''
 Description: A service that allows a user to read the content of a file
 
@@ -12,14 +13,17 @@ Error message should be returned if the file does not exist on the server or if 
 
 # return data or error message
 def read_file(pathname,offset,length):
+    check_exist = os.path.isfile(pathname)
+    if not check_exist:
+        return Server_GLOBAL.Error.FILE_NOT_EXIST
     try:
         f = open(pathname,'r')
     except OSError:
-        return Server.Error.FILE_OPEN_ERROR
+        return Server_GLOBAL.Error.FILE_OPEN_ERROR
     
     max_offset = os.path.getsize(pathname) - 1
     if offset > max_offset or offset < 0:
-        return Server.Error.FILE_SEEK_ERROR
+        return Server_GLOBAL.Error.FILE_SEEK_ERROR
     f.seek(offset)
 
     data = f.read(length)

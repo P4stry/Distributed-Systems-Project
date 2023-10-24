@@ -13,7 +13,7 @@ def write_insert(pathname,offset,data):
     if isSuccess:
         curr_dt = datetime.now()
         curr_t = int(round(curr_dt.timestamp()))
-        Client_Caching.update_cache(pathname,content,curr_t,curr_t)
+        Client_Caching.update_cache(pathname, content, curr_t, curr_t, 0, -1) # length == -1, whole file is cached
         print(content)
         return True
     else:
@@ -31,7 +31,7 @@ def write_append(pathname, data):
     if isSuccess:
         curr_dt = datetime.now()
         curr_t = int(round(curr_dt.timestamp()))
-        Client_Caching.update_cache(pathname,content,curr_t,curr_t)
+        Client_Caching.update_cache(pathname, content, curr_t, curr_t, 0, -1) # length == -1, whole file is cached
         print(content)
         return True
     else:

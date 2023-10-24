@@ -243,13 +243,16 @@ def deserialize(data):
         elif 'str' in data[data_type_start : data_type_end + 1]:
             deserialized_data = data[data_type_end + 1:] # deserialize string data
         elif 'bool' in data[data_type_start : data_type_end + 1]:
-            deserialized_data = bool(data[data_type_end + 1:])
+            if data[data_type_end + 1:] == 'True':
+                deserialized_data = True
+            else:
+                deserialized_data = False
         return deserialized_data
 
-# test data
+# # test data
 # test_tuple = ((1,2,({1:'K',9:(3,'7',{(1,2): 6})},(3,4,'H'),'1')), {1,10,11})
 # # test_dict = {1:{2:(6,{'1':'2'}), (8,17):9, 10:11},'12':'13', 4:5, 7:{1,2,3}}
-# test_dict = {"isSuccess":True, "content":"abcd"}
+# test_dict = {"isSuccess":False, "isSuccess2":True}
 # test_set = {1,2,(1,2,'1'),'3'}
 # test_list = [1,2,{1:2, 3:{4,5,(7,8,9)}}]
 # test_data = [test_tuple, test_dict, test_set, test_list]
