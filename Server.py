@@ -59,7 +59,6 @@ while True:
 while True:
     print(">"*50+"Waiting for client"+"<"*50)
     # receive request from client
-    # -------------need to implement----------------
     # also need to get the address of the client
     request, client_address= Server_GLOBAL.SERVER_SOCKET.recvfrom(10240)
     address = client_address[0] + ":" + str(client_address[1]) # convert (client_ip(str),client_port(int)) to the address(string), format: "ip:port"
@@ -298,7 +297,6 @@ while True:
     response = Data_process.serialize(response)
     response = str.encode(response)
     # send to client
-    # -------------need to implement----------------
     # test timeout
     if Server_GLOBAL.SLEEP_INTERVAL > 0:
         time.sleep(Server_GLOBAL.SLEEP_INTERVAL)

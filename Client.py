@@ -76,7 +76,6 @@ while True:
         print("Invalid input")
 
 # build connection with client
-# -------------need to implement----------------
 
 if Client_GLOBAL.TIMEOUT > 0:
     Client_GLOBAL.CLIENT_SOCKET.settimeout(Client_GLOBAL.TIMEOUT)
@@ -89,7 +88,6 @@ SERVER_ADDRESS = ('localhost', 12345) # something like this
 
 while True:
     # get operation and parameters from user
-    # -------------need to implement----------------
     print(">"*50 + "New Request" + "<"*50)
     print("Please input operation:\n \
           list files: list all shared files on the server\n \

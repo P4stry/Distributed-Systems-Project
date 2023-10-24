@@ -29,7 +29,6 @@ TEST_LOSS = False
 POSSIBILITY_OF_LOSS = 0
 
 # build connection with client
-# -------------need to implement----------------
 # something like this
 SERVER_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 SERVER_ADDRESS = ('localhost', 12345)

@@ -18,7 +18,6 @@ def send_and_receive(request):
     request = Data_process.serialize(request)
 
     # Timeout senario
-    # -------------need to implement----------------
     if Client_GLOBAL.TIMEOUT > 0:
 
         # maybe have better way to empty the buffer of socket
@@ -42,13 +41,11 @@ def send_and_receive(request):
                 else:
                     print("Message loss")
             # send request(str) to server
-            # -------------need to implement----------------
             else:
                 Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS) # something like this
             # receive response
             try:
                 # receive response(str) from server
-                # -------------need to implement----------------
                 response, _= Client_GLOBAL.CLIENT_SOCKET.recvfrom(10240) # something like this
                 flag = True
             except timeout:
@@ -68,11 +65,9 @@ def send_and_receive(request):
             else:
                 print("Message loss")
         # send request(str) to server
-        # -------------need to implement----------------
         else:
             Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS) # something like this
         # receive response(str) from server
-        # -------------need to implement----------------
         response, _= Client_GLOBAL.CLIENT_SOCKET.recvfrom(10240) # something like this
 
     # unmarshalling
