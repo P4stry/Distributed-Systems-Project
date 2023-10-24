@@ -65,4 +65,4 @@ You are required to write a server program and a client program using the system
 - ### Simulate the loss of request and reply messages(Done)
   Choose a random number to decide if there are any failures (on server side, decide whether to reply or not, on client side, set timeout to send request repeatly), maybe can do with at-least-once and at-most-once semantics
 
-- ### Integrate and Test and Report(Need to do)
+- ### Integrate and Test and Report(Done)
