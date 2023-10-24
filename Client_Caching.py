@@ -1,7 +1,6 @@
 from datetime import datetime
-import Client_Send_and_Receive
 import Client_Get_file_attr
-import Client
+import Client_GLOBAL
 '''
 Description: 
 The file content read by the client is retained in a buffer of the client program. 
@@ -22,20 +21,27 @@ T - T_c ≥ t, issue getattr call to server to obtain T_mserver(update T_c)
     T_mclient = T_mserver, the cache entry is valid (the data have not been modified at the server) and T_c is updated to current time
     T_mclient < T_mserver, the cache entry is invalidated, and a new request is sent to server for updated data, T_c is also updated
 '''
-# CACHE = {pathname:{T_c:int, T_mclient:int, content:string}}
+# CACHE = {pathname:{offset:int, end:int, T_c:int, T_mclient:int, content:string}}
 
-def check_cache(pathname):
+def check_cache(pathname, offset, length):
     curr_dt = datetime.now()
     curr_t = int(round(curr_dt.timestamp()))
-    if pathname in Client.CACHE:
-        if curr_t - Client.CACHE[pathname]["T_c"] < Client.FRESHNESS_INTERVAL:
+    if pathname in Client_GLOBAL.CACHE:
+        # check if offset and length are valid
+        # if end == -1, the whole file is cached (last cache is updated by write operation)
+        if offset < Client_GLOBAL.CACHE[pathname]["offset"] or (offset + length - 1) > Client_GLOBAL.CACHE[pathname]["end"]:
+            if Client_GLOBAL.CACHE[pathname]["end"] == -1:
+                pass
+            else:
+                return False
+        if curr_t - Client_GLOBAL.CACHE[pathname]["T_c"] < Client_GLOBAL.FRESHNESS_INTERVAL:
             return True
         else:
             # return format: (t_mserver(int), length(int)) (tuple)
             return_value = Client_Get_file_attr.get_file_attr(pathname)
             t_mserver = return_value[0]
-            if Client.CACHE[pathname]["T_mclient"] == t_mserver:
-                Client.CACHE[pathname]["T_c"] = curr_t
+            if Client_GLOBAL.CACHE[pathname]["T_mclient"] == t_mserver:
+                Client_GLOBAL.CACHE[pathname]["T_c"] = curr_t
                 return True
             else:
                 return False
@@ -44,14 +50,26 @@ def check_cache(pathname):
 
         
 def read_from_cache(pathname,offset,length):
-    content = Client.CACHE[pathname]["content"]
-    return content[offset:offset+length]
+    # recaculate offset in cached content
+    offset = offset - Client_GLOBAL.CACHE[pathname]["offset"]
 
-def update_cache(pathname, data , t_c, t_mclient):
-    if pathname in Client.CACHE:
-        Client.CACHE[pathname]["content"] = data
-        Client.CACHE[pathname]["T_c"] = t_c
+    content = Client_GLOBAL.CACHE[pathname]["content"]
+    return content[offset : offset + length]
+
+def update_cache(pathname, data , t_c, t_mclient, offset, length):
+    if pathname in Client_GLOBAL.CACHE:
+        Client_GLOBAL.CACHE[pathname]["content"] = data
+        Client_GLOBAL.CACHE[pathname]["T_c"] = t_c
+        Client_GLOBAL.CACHE[pathname]["offset"] = offset
+        if length == -1: # whole file is cached
+            Client_GLOBAL.CACHE[pathname]["end"] = -1 # write operation updates
+        else:
+            Client_GLOBAL.CACHE[pathname]["end"] = offset + length - 1 # read operation updates
         if t_mclient != -1: # write operation updates
-            Client.CACHE[pathname]["T_mclient"] = t_mclient
+            Client_GLOBAL.CACHE[pathname]["T_mclient"] = t_mclient
     else:
-        Client.CACHE[pathname] = {"T_c":t_c, "T_mclient":t_mclient, "content":data}
+        if length == -1: # write operation updates
+            end = -1
+        else:
+            end = offset + length - 1 # read operation updates
+        Client_GLOBAL.CACHE[pathname] = {"offset":offset, "end": end, "T_c":t_c, "T_mclient":t_mclient, "content":data}

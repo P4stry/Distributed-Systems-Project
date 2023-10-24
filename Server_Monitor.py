@@ -1,5 +1,7 @@
+import Server_GLOBAL
 from datetime import datetime
-import Server
+import os
+
 '''
 Description: 
 A service that allows a user to monitor updates made to the content of a specified file at the server 
@@ -16,13 +18,15 @@ Return: the updated file content
 # pathname: string
 # address: "ip:port"
 def register(pathname, address, t):
+    if not os.path.isfile(pathname):
+        return False
     curr_dt = datetime.now()
     timestamp = int(round(curr_dt.timestamp()))
     expiration = t + timestamp
-    if pathname in Server.MONITORING:
-        Server.MONITORING[pathname][address] = expiration
+    if pathname in Server_GLOBAL.MONITORING:
+        Server_GLOBAL.MONITORING[pathname][address] = expiration
     else:
-        Server.MONITORING[pathname] = {address:expiration}
+        Server_GLOBAL.MONITORING[pathname] = {address:expiration}
     return True
 
 # return list of clients to be notified
@@ -31,8 +35,8 @@ def callback_clients(pathname):
     expired_clients = []
     curr_dt = datetime.now()
     timestamp = int(round(curr_dt.timestamp()))
-    if pathname in Server.MONITORING:
-        for address, expiration in Server.MONITORING[pathname].items():
+    if pathname in Server_GLOBAL.MONITORING:
+        for address, expiration in Server_GLOBAL.MONITORING[pathname].items():
             if expiration < timestamp:
                 expired_clients.append(address) # remove the expired record
             else:
@@ -41,7 +45,7 @@ def callback_clients(pathname):
         pass
 
     for address in expired_clients:
-        del Server.MONITORING[pathname][address]
+        del Server_GLOBAL.MONITORING[pathname][address]
     
     return alive_clients
 

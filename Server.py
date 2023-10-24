@@ -1,49 +1,25 @@
+import Server_GLOBAL
 import Server_Get_file_attr
 import Server_Monitor
 import Server_Read_file
 import Server_Write_file
 import Server_Get_file_list
 import Data_process
-import socket
-from enum import Enum
 import time
 import random
 
-# -------------------------------------------------GLOBAL STATE: START------------------------------------------------
-
-class Error(Enum):
-    FILE_OPEN_ERROR = 0
-    FILE_SEEK_ERROR = 1
-
-# {pathname(str):t(int)}
-FILE_ATTR = {}
-
-# {pathname(str):{address(str):expiration(int)(sec)}}
-# MONITORING = {"test.txt":{"192.168.0.1":1797625518, "192.168.0.2":1597625518}}
-MONITORING = {}
-
-# log requests and replies history
-# {address(str):{requestId(int):reply(str)}}
-HISTORY = {}
-
-# -------------------------------------------------GLOBAL STATE: END---------------------------------------------------
 #######################################################################################################################
 # -------------------------------------------------INITIALIZE the SERVER: START----------------------------------------
-
-# for at-most-once and at-least-once and message loss test
-# Need to set by user!!!!!!!
-SLEEP_INTERVAL = -1
-TEST_LOSS = False
 
 while True:
     choose = input("Test timeout? (y/n): ")
     if choose == "y":
-        while SLEEP_INTERVAL < 0:
+        while Server_GLOBAL.SLEEP_INTERVAL < 0:
             input_value = input("Please input sleep interval (seconds)(an integer greater than 0): ")
             try: # check integer
                 input_value = int(input_value)
                 if input_value > 0: # check greater than 0
-                    SLEEP_INTERVAL = input_value
+                    Server_GLOBAL.SLEEP_INTERVAL = input_value
                 else:
                     print("Invalid sleep interval")
             except ValueError:
@@ -58,7 +34,17 @@ while True:
 while True:
     choose = input("Test message loss? (y/n): ")
     if choose == "y":
-        TEST_LOSS = True
+        Server_GLOBAL.TEST_LOSS = True
+        while Server_GLOBAL.POSSIBILITY_OF_LOSS == 0:
+            input_value= input("Please input the possibility of message loss (1-100): ")
+            try: # check integer
+                input_value = int(input_value)
+                if input_value >= 0 and input_value <= 100: # check greater than 0
+                    Server_GLOBAL.POSSIBILITY_OF_LOSS = input_value
+                else:
+                    print("Invalid possiblity of loss")
+            except ValueError:
+                print("Invalid possiblity of loss")
         break
     elif choose == "n":
         # TEST_LOSS = False
@@ -66,27 +52,22 @@ while True:
     else:
         print("Invalid input")
 
-# build connection with client
-# -------------need to implement----------------
-# something like this
-SERVER_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-SERVER_ADDRESS = ('localhost', 12345)
-SERVER_SOCKET.bind(SERVER_ADDRESS)
-
 # -------------------------------------------------INITIALIZE the SERVER: END------------------------------------------
 #######################################################################################################################
 # ---------------------------------------------RECEIVE and HANDLE the REQUEST: START-----------------------------------
 
 while True:
-    print("Waiting for client")
+    print(">"*50+"Waiting for client"+"<"*50)
     # receive request from client
     # -------------need to implement----------------
     # also need to get the address of the client
-    request, client_address= SERVER_SOCKET.recvfrom(1024)
+    request, client_address= Server_GLOBAL.SERVER_SOCKET.recvfrom(10240)
     address = client_address[0] + ":" + str(client_address[1]) # convert (client_ip(str),client_port(int)) to the address(string), format: "ip:port"
 
     # unmashalling
+    request = bytes.decode(request)
     request = Data_process.deserialize(request)
+    print("Receive request from client: ", request)
     operation = request["operation"]
 
     # request format:
@@ -95,8 +76,8 @@ while True:
     if operation == "list_files":
         flag = True
         if "requestId" in request:
-            if address in HISTORY:
-                if request["requestId"] in HISTORY[address]:
+            if address in Server_GLOBAL.HISTORY:
+                if request["requestId"] in Server_GLOBAL.HISTORY[address]:
                     # send the recoreded reply to client
                     requestId = request["requestId"]
                     flag = False
@@ -108,8 +89,8 @@ while True:
     elif operation == "read":
         flag = True
         if "requestId" in request: # at-most-once
-            if address in HISTORY:
-                if request["requestId"] in HISTORY[address]:
+            if address in Server_GLOBAL.HISTORY:
+                if request["requestId"] in Server_GLOBAL.HISTORY[address]:
                     # send the recoreded reply to client
                     requestId = request["requestId"]
                     flag = False
@@ -118,10 +99,13 @@ while True:
             offset = request["offset"]
             length = request["length"]
             return_value = Server_Read_file.read_file(pathname,offset,length)
-            if return_value == Error.FILE_OPEN_ERROR:
+            if return_value == Server_GLOBAL.Error.FILE_NOT_EXIST:
+                isSuccess = False
+                content = "File does not exist"
+            elif return_value == Server_GLOBAL.Error.FILE_OPEN_ERROR:
                 isSuccess = False
                 content = "Cannot open file, please check the pathname"
-            elif return_value == Error.FILE_SEEK_ERROR:
+            elif return_value == Server_GLOBAL.Error.FILE_SEEK_ERROR:
                 isSuccess = False
                 content = "Offset exceeds the file length"
             else:
@@ -133,8 +117,8 @@ while True:
     elif operation == "write_insert":
         flag = True
         if "requestId" in request: # at-most-once
-            if address in HISTORY:
-                if request["requestId"] in HISTORY[address]:
+            if address in Server_GLOBAL.HISTORY:
+                if request["requestId"] in Server_GLOBAL.HISTORY[address]:
                     # send the recoreded reply to client
                     requestId = request["requestId"]
                     flag = False
@@ -143,10 +127,13 @@ while True:
             offset = request["offset"]
             data = request["data"]
             return_value = Server_Write_file.write_insert(pathname, offset, data)
-            if return_value == Error.FILE_OPEN_ERROR:
+            if return_value == Server_GLOBAL.Error.FILE_NOT_EXIST:
+                isSuccess = False
+                content = "File does not exist"
+            elif return_value == Server_GLOBAL.Error.FILE_OPEN_ERROR:
                 isSuccess = False
                 content = "Cannot open file, please check the pathname"
-            elif return_value == Error.FILE_SEEK_ERROR:
+            elif return_value == Server_GLOBAL.Error.FILE_SEEK_ERROR:
                 isSuccess = False
                 content = "Offset exceeds the file length"
             else:
@@ -160,8 +147,8 @@ while True:
     elif operation == "write_append":
         flag = True
         if "requestId" in request:
-            if address in HISTORY:
-                if request["requestId"] in HISTORY[address]:
+            if address in Server_GLOBAL.HISTORY:
+                if request["requestId"] in Server_GLOBAL.HISTORY[address]:
                     # send the recoreded reply to client
                     requestId = request["requestId"]
                     flag = False
@@ -169,7 +156,10 @@ while True:
             pathname = 'Shared file/' + request["pathname"]
             data = request["data"]
             return_value = Server_Write_file.write_append(pathname, data)
-            if return_value == Error.FILE_OPEN_ERROR:
+            if return_value == Server_GLOBAL.Error.FILE_NOT_EXIST:
+                isSuccess = False
+                content = "File does not exist"
+            elif return_value == Server_GLOBAL.Error.FILE_OPEN_ERROR:
                 isSuccess = False
                 content = "Cannot open file, please check the pathname"
             else:
@@ -181,11 +171,12 @@ while True:
     # Get file attribute request: {"requestId":Id(int),"operation":"get_file_attr", "pathname":pathname(str)} at-most-once
     # Get file attribute request: {"operation":"get_file_attr", "pathname":pathname(str)} at-least-once
     # Lack of error message
+    # Lack of check file exist or not
     elif operation == "get_file_attr":
         flag = True
         if "requestId" in request: # at-most-once
-            if address in HISTORY:
-                if request["requestId"] in HISTORY[address]:
+            if address in Server_GLOBAL.HISTORY:
+                if request["requestId"] in Server_GLOBAL.HISTORY[address]:
                     # send the recoreded reply to client
                     requestId = request["requestId"]
                     flag = False
@@ -201,8 +192,8 @@ while True:
     elif operation == "register_monitor":
         flag = True
         if "requestId" in request: # at-most-once
-            if address in HISTORY:
-                if request["requestId"] in HISTORY[address]:
+            if address in Server_GLOBAL.HISTORY:
+                if request["requestId"] in Server_GLOBAL.HISTORY[address]:
                     # send the recoreded reply to client
                     requestId = request["requestId"]
                     flag = False
@@ -228,9 +219,10 @@ while True:
             # record the reply, if at-most-once
             if "requestId" in request:
                 requestId = request["requestId"]
-                HISTORY[address] = {requestId:response}
+                Server_GLOBAL.HISTORY[address] = {requestId:response}
         else:
-            response = HISTORY[address][requestId]
+            print("Repeated request, send the recorded reply to client")
+            response = Server_GLOBAL.HISTORY[address][requestId]
 
     # Read response: {"isSuccess":isSuccess(bool), "content":content(str)}
     elif operation == "read":
@@ -239,33 +231,40 @@ while True:
             # record the reply, if at-most-once
             if "requestId" in request:
                 requestId = request["requestId"]
-                HISTORY[address] = {requestId:response}
+                Server_GLOBAL.HISTORY[address] = {requestId:response}
         else:
-            response = HISTORY[address][requestId]
+            print("Repeated request, send the recorded reply to client")
+            response = Server_GLOBAL.HISTORY[address][requestId]
 
-    # Write response: {"isSuccess":isSuccess(bool), "content":content(str)}
+    # Write insert / write append response: {"isSuccess":isSuccess(bool), "content":content(str)}
     # Notify clients: {"notification":content(str)}
-    elif operation == "write":
+    elif operation == "write_insert" or operation == "write_append":
         if flag:
             response = {"isSuccess":isSuccess, "content":content}
             # record the reply, if at-most-once
             if "requestId" in request:
                 requestId = request["requestId"]
-                HISTORY[address] = {requestId:response}
-
-            # notify other clients
-            if alive_clients:
-                notification = {"file name": request["pathname"], "file updated":content}
-                # marshalling
-                notification = Data_process.serialize(notification)
-                for alive_client in alive_clients:
-                    # conver "ip:port" to (ip(str),port(int))(tuple)
-                    address_ip = alive_client.split(":")
-                    alive_client_address = (address_ip[0],int(address_ip[1]))
-                    # send notification to each client
-                    SERVER_SOCKET.sendto(response,alive_client_address)
+                Server_GLOBAL.HISTORY[address] = {requestId:response}
+            if isSuccess:
+                # notify other clients
+                if alive_clients:
+                    notification = {"file name": request["pathname"], "file updated":content}
+                    # marshalling
+                    notification = Data_process.serialize(notification)
+                    notification = str.encode(notification)
+                    for alive_client in alive_clients:
+                        # do not notify the client who made the change
+                        if alive_client == address:
+                            continue
+                        # conver "ip:port" to (ip(str),port(int))(tuple)
+                        print("Send %s to %s" % (notification, alive_client))
+                        address_ip = alive_client.split(":")
+                        alive_client_address = (address_ip[0],int(address_ip[1]))
+                        # send notification to each client
+                        Server_GLOBAL.SERVER_SOCKET.sendto(notification,alive_client_address)
         else:
-            response = HISTORY[address][requestId]
+            print("Repeated request, send the recorded reply to client")
+            response = Server_GLOBAL.HISTORY[address][requestId]
 
     # Get file attribute response: {"T_mserver":t_mserver(int), "length":length(int)}
     elif operation == "get_file_attr":
@@ -274,9 +273,10 @@ while True:
             # record the reply, if at-most-once
             if "requestId" in request:
                 requestId = request["requestId"]
-                HISTORY[address] = {requestId:response}
+                Server_GLOBAL.HISTORY[address] = {requestId:response}
         else:
-            response = HISTORY[address][requestId]
+            print("Repeated request, send the recorded reply to client")
+            response = Server_GLOBAL.HISTORY[address][requestId]
 
     # Register Monitor response: {"isSuccess":isSuccess(bool)}
     elif operation == "register_monitor":
@@ -285,28 +285,34 @@ while True:
             # record the reply, if at-most-once
             if "requestId" in request:
                 requestId = request["requestId"]
-                HISTORY[address] = {requestId:response}
+                Server_GLOBAL.HISTORY[address] = {requestId:response}
         else:
-            response = HISTORY[address][requestId]
+            print("Repeated request, send the recorded reply to client")
+            response = Server_GLOBAL.HISTORY[address][requestId]
 
     else:
         print("No reponse")
     # marshalling
+    print("Send to ", client_address)
+    print("Response: ", response)
     response = Data_process.serialize(response)
-
+    response = str.encode(response)
     # send to client
     # -------------need to implement----------------
     # test timeout
-    if SLEEP_INTERVAL > 0:
-        time.sleep(SLEEP_INTERVAL)
+    if Server_GLOBAL.SLEEP_INTERVAL > 0:
+        time.sleep(Server_GLOBAL.SLEEP_INTERVAL)
 
     # test message loss
-    if TEST_LOSS:
-        loss = random.randint(0,1)
-        if loss == 1:
-            SERVER_SOCKET.sendto(response,client_address) # something like this
+    if Server_GLOBAL.TEST_LOSS:
+        sucess = random.randint(1,100)
+        if sucess > Server_GLOBAL.POSSIBILITY_OF_LOSS:
+            Server_GLOBAL.SERVER_SOCKET.sendto(response,client_address) # something like this
+        else:
+            print("Message loss")
+            continue
 
-    SERVER_SOCKET.sendto(response,client_address) # something like this
+    Server_GLOBAL.SERVER_SOCKET.sendto(response,client_address) # something like this
 
     # ------------------------------------------------SEND RESPONSE to the CLIENT: END-----------------------------------------------
 

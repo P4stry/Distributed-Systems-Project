@@ -3,8 +3,9 @@ import Client_Send_and_Receive
 from datetime import datetime
 
 def read_file(pathname,offset,length):
-    isValid = Client_Caching.check_cache(pathname)
+    isValid = Client_Caching.check_cache(pathname, offset, length)
     if isValid:
+        print("Read from cache")
         content = Client_Caching.read_from_cache(pathname,offset,length)
     else:
         # if isSuccess is false, content is error message
@@ -17,7 +18,7 @@ def read_file(pathname,offset,length):
         if isSuccess:
             curr_dt = datetime.now()
             curr_t = int(round(curr_dt.timestamp()))
-            Client_Caching.update_cache(pathname,content,curr_t,-1)
+            Client_Caching.update_cache(pathname, content, curr_t, -1, offset, length)
         else:
             print(content)
             return False

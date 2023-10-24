@@ -1,8 +1,8 @@
-import os
+import Server_GLOBAL
 import Server_Monitor
 import Server_Get_file_attr
-import Server
 from datetime import datetime
+import os
 '''
 Description: The service inserts the sequence of bytes into the file at the designated offset in the file. The original content of the file after the offset is pushed forward.
 
@@ -15,13 +15,16 @@ Error message should be returned if the file does not exist on the server or if 
 
 # return an acknowledgement, clients to be notified, new content
 def write_insert(pathname, offset, data):
+    check_exist = os.path.isfile(pathname)
+    if not check_exist:
+        return Server_GLOBAL.Error.FILE_NOT_EXIST
     try:
         f = open(pathname, 'r')
     except OSError:
-        return Server.Error.FILE_OPEN_ERROR
+        return Server_GLOBAL.Error.FILE_OPEN_ERROR
     max_offset = os.path.getsize(pathname) - 1
     if offset > max_offset or offset < 0:
-        return Server.Error.FILE_SEEK_ERROR
+        return Server_GLOBAL.Error.FILE_SEEK_ERROR
     
     current_content = f.read()
     f.close()
@@ -44,10 +47,13 @@ def write_insert(pathname, offset, data):
     # Server sends new content to the client requesting write operation anyway
 
 def write_append(pathname, data):
+    check_exist = os.path.isfile(pathname)
+    if not check_exist:
+        return Server_GLOBAL.Error.FILE_NOT_EXIST
     try:
         f = open(pathname, 'a')
     except OSError:
-        return Server.Error.FILE_OPEN_ERROR
+        return Server_GLOBAL.Error.FILE_OPEN_ERROR
 
     # write append
     f.write(data)
