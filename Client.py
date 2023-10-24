@@ -164,7 +164,7 @@ while True:
             print("File %s does not exist on the server" % pathname)
         else:
             print("Last modifed time of %s on the server is %d" % (pathname, t_mserver))
-            print("Length of %s is %d" % (pathname, length))
+            print("Length of %s is %d bytes" % (pathname, length))
 
     # terminate the client
     elif operation == "exit":
