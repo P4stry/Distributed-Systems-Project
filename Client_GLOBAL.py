@@ -17,9 +17,9 @@ TEST_LOSS = False
 POSSIBILITY_OF_LOSS = 0
 
 CLIENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-CLIENT_ADDRESS = ('localhost', 12344)
+CLIENT_ADDRESS = ('172.20.10.2', 12344)
 CLIENT_SOCKET.bind(CLIENT_ADDRESS)
 
-SERVER_ADDRESS = ('localhost', 12345)
+SERVER_ADDRESS = ('172.20.10.3', 9999)
 
 # -------------------------------------------------GLOBAL STATE: END---------------------------------------------------

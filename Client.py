@@ -80,8 +80,6 @@ while True:
 if Client_GLOBAL.TIMEOUT > 0:
     Client_GLOBAL.CLIENT_SOCKET.settimeout(Client_GLOBAL.TIMEOUT)
 
-SERVER_ADDRESS = ('localhost', 12345)
-
 # -------------------------------------------------INITIALIZE the CLIENT: END------------------------------------------
 #######################################################################################################################
 # ---------------------------------------------RECEIVE and SEND the REQUEST: START-------------------------------------
