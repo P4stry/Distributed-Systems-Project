@@ -37,16 +37,16 @@ def send_and_receive(request):
             if Client_GLOBAL.TEST_LOSS:
                 success = random.randint(1,100)
                 if success > Client_GLOBAL.POSSIBILITY_OF_LOSS:
-                   Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS) # something like this
+                   Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS)
                 else:
                     print("Message loss")
             # send request(str) to server
             else:
-                Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS) # something like this
+                Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS)
             # receive response
             try:
                 # receive response(str) from server
-                response, _= Client_GLOBAL.CLIENT_SOCKET.recvfrom(10240) # something like this
+                response, _= Client_GLOBAL.CLIENT_SOCKET.recvfrom(10240)
                 flag = True
             except timeout:
                 print("Timeout, no response from server within %d seconds" % Client_GLOBAL.TIMEOUT)
@@ -61,14 +61,14 @@ def send_and_receive(request):
         if Client_GLOBAL.TEST_LOSS:
             success = random.randint(1,100)
             if success > Client_GLOBAL.POSSIBILITY_OF_LOSS:
-                Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS) # something like this
+                Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS)
             else:
                 print("Message loss")
         # send request(str) to server
         else:
-            Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS) # something like this
+            Client_GLOBAL.CLIENT_SOCKET.sendto(str.encode(request),Client_GLOBAL.SERVER_ADDRESS)
         # receive response(str) from server
-        response, _= Client_GLOBAL.CLIENT_SOCKET.recvfrom(10240) # something like this
+        response, _= Client_GLOBAL.CLIENT_SOCKET.recvfrom(10240)
 
     # unmarshalling
     response = bytes.decode(response)

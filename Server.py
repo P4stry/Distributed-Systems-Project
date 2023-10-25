@@ -305,12 +305,12 @@ while True:
     if Server_GLOBAL.TEST_LOSS:
         sucess = random.randint(1,100)
         if sucess > Server_GLOBAL.POSSIBILITY_OF_LOSS:
-            Server_GLOBAL.SERVER_SOCKET.sendto(response,client_address) # something like this
+            Server_GLOBAL.SERVER_SOCKET.sendto(response,client_address)
         else:
             print("Message loss")
             continue
 
-    Server_GLOBAL.SERVER_SOCKET.sendto(response,client_address) # something like this
+    Server_GLOBAL.SERVER_SOCKET.sendto(response,client_address)
 
     # ------------------------------------------------SEND RESPONSE to the CLIENT: END-----------------------------------------------
 

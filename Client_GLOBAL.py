@@ -16,9 +16,9 @@ REQUEST_ID = -1
 TEST_LOSS = False
 POSSIBILITY_OF_LOSS = 0
 
-CLIENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # something like this
-CLIENT_ADDRESS = ('localhost', 12343) # something like this
-CLIENT_SOCKET.bind(CLIENT_ADDRESS) # something like this
+CLIENT_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+CLIENT_ADDRESS = ('localhost', 12344)
+CLIENT_SOCKET.bind(CLIENT_ADDRESS)
 
 SERVER_ADDRESS = ('localhost', 12345)
 

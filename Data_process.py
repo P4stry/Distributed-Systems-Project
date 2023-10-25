@@ -249,15 +249,20 @@ def deserialize(data):
                 deserialized_data = False
         return deserialized_data
 
-# # test data
-# test_tuple = ((1,2,({1:'K',9:(3,'7',{(1,2): 6})},(3,4,'H'),'1')), {1,10,11})
+# # # test data
+# test_bool = {False}
+# test_int = {1}
+# test_str = {'A'}
+# test_tuple = (1,'A',False)
 # # test_dict = {1:{2:(6,{'1':'2'}), (8,17):9, 10:11},'12':'13', 4:5, 7:{1,2,3}}
-# test_dict = {"isSuccess":False, "isSuccess2":True}
-# test_set = {1,2,(1,2,'1'),'3'}
-# test_list = [1,2,{1:2, 3:{4,5,(7,8,9)}}]
+# test_dict = {"isSuccess":False, "test_data":[1,'A',(2,'B'),{3,'C'},{4:'D'}]}
+# test_set = {1,'A',False}
+# test_list = [1,'2',False]
 # test_data = [test_tuple, test_dict, test_set, test_list]
 
-# # Serialize & Deserialize the data
+# # # Serialize & Deserialize the data
+# print("Test Data:", test_dict)
+# print("Type of Test Data:", type(test_dict))
 # serialized_data = serialize(test_dict)
 # print("Serialized Data:", serialized_data)
 # print("Type of Serialized Data:", type(serialized_data))

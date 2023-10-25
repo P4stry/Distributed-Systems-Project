@@ -80,7 +80,7 @@ while True:
 if Client_GLOBAL.TIMEOUT > 0:
     Client_GLOBAL.CLIENT_SOCKET.settimeout(Client_GLOBAL.TIMEOUT)
 
-SERVER_ADDRESS = ('localhost', 12345) # something like this
+SERVER_ADDRESS = ('localhost', 12345)
 
 # -------------------------------------------------INITIALIZE the CLIENT: END------------------------------------------
 #######################################################################################################################
@@ -97,7 +97,7 @@ while True:
           register monitor: register monitor on specific files to receive updates\n \
           get file attribute: get attributes of shared files\n \
           exit: terminate the client")
-    operation = input("Please input operation: ") # something like this
+    operation = input("Please input operation: ")
     
     # send request to server
     if operation == "list files":
@@ -144,7 +144,7 @@ while True:
         isSuccess = Client_Register_Monitor.register_monitor(pathname,interval)
         if isSuccess:
             # wait for update notification from the server
-            Client_Wait_notification.wait_for_notification()
+            Client_Wait_notification.wait_for_notification(interval)
 
 
     # Idempotent operation
